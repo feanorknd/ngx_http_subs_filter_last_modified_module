@@ -182,7 +182,7 @@ static ngx_command_t  ngx_http_subs_filter_commands[] = {
 };
 
 
-static ngx_http_module_t  ngx_http_subs_filter_module_ctx = {
+static ngx_http_module_t  ngx_http_subs_filter_module_last_modified_ctx = {
     NULL,                                  /* preconfiguration */
     ngx_http_subs_filter_init,             /* postconfiguration */
 
@@ -197,9 +197,9 @@ static ngx_http_module_t  ngx_http_subs_filter_module_ctx = {
 };
 
 
-ngx_module_t  ngx_http_subs_filter_module = {
+ngx_module_t  ngx_http_subs_filter_module_last_modified = {
     NGX_MODULE_V1,
-    &ngx_http_subs_filter_module_ctx,      /* module context */
+    &ngx_http_subs_filter_module_last_modified_ctx,      /* module context */
     ngx_http_subs_filter_commands,         /* module directives */
     NGX_HTTP_MODULE,                       /* module type */
     NULL,                                  /* init master */
@@ -224,7 +224,7 @@ ngx_http_subs_header_filter(ngx_http_request_t *r)
 {
     ngx_http_subs_loc_conf_t  *slcf;
 
-    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module);
+    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module_last_modified);
 
     if (slcf->sub_pairs->nelts == 0
         || r->header_only
@@ -297,7 +297,7 @@ ngx_http_subs_init_context(ngx_http_request_t *r)
     ngx_http_subs_ctx_t       *ctx;
     ngx_http_subs_loc_conf_t  *slcf;
 
-    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module);
+    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module_last_modified);
 
     /* Everything in ctx is NULL or 0. */
     ctx = ngx_pcalloc(r->pool, sizeof(ngx_http_subs_ctx_t));
@@ -305,7 +305,7 @@ ngx_http_subs_init_context(ngx_http_request_t *r)
         return NGX_ERROR;
     }
 
-    ngx_http_set_ctx(r, ctx, ngx_http_subs_filter_module);
+    ngx_http_set_ctx(r, ctx, ngx_http_subs_filter_module_last_modified);
 
     ctx->sub_pairs = ngx_array_create(r->pool, slcf->sub_pairs->nelts,
                                       sizeof(sub_pair_t));
@@ -357,12 +357,12 @@ ngx_http_subs_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
 
     log = r->connection->log;
 
-    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module);
+    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module_last_modified);
     if (slcf == NULL) {
         return ngx_http_next_body_filter(r, in);
     }
 
-    ctx = ngx_http_get_module_ctx(r, ngx_http_subs_filter_module);
+    ctx = ngx_http_get_module_ctx(r, ngx_http_subs_filter_module_last_modified);
     if (ctx == NULL) {
         return ngx_http_next_body_filter(r, in);
     }
@@ -467,7 +467,7 @@ ngx_http_subs_body_filter_init_context(ngx_http_request_t *r, ngx_chain_t *in)
 {
     ngx_http_subs_ctx_t  *ctx;
 
-    ctx = ngx_http_get_module_ctx(r, ngx_http_subs_filter_module);
+    ctx = ngx_http_get_module_ctx(r, ngx_http_subs_filter_module_last_modified);
 
     r->connection->buffered |= NGX_HTTP_SUB_BUFFERED;
 
@@ -515,7 +515,7 @@ ngx_http_subs_body_filter_process_buffer(ngx_http_request_t *r, ngx_buf_t *b)
     ngx_int_t             len, rc;
     ngx_http_subs_ctx_t  *ctx;
 
-    ctx = ngx_http_get_module_ctx(r, ngx_http_subs_filter_module);
+    ctx = ngx_http_get_module_ctx(r, ngx_http_subs_filter_module_last_modified);
 
     if (b == NULL) {
         return NGX_DECLINED;
@@ -990,7 +990,7 @@ ngx_http_subs_get_chain_buf(ngx_http_request_t *r,
     ngx_chain_t               *temp;
     ngx_http_subs_loc_conf_t  *slcf;
 
-    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module);
+    slcf = ngx_http_get_module_loc_conf(r, ngx_http_subs_filter_module_last_modified);
 
     if (ctx->free) {
         temp = ctx->free;
@@ -1007,7 +1007,7 @@ ngx_http_subs_get_chain_buf(ngx_http_request_t *r,
             return NGX_ERROR;
         }
 
-        temp->buf->tag = (ngx_buf_tag_t) &ngx_http_subs_filter_module;
+        temp->buf->tag = (ngx_buf_tag_t) &ngx_http_subs_filter_module_last_modified;
         temp->buf->recycled = 1;
 
         /* TODO: limit the buffer number */
@@ -1059,10 +1059,10 @@ ngx_http_subs_output(ngx_http_request_t *r, ngx_http_subs_ctx_t *ctx,
 
 #if defined(nginx_version) && (nginx_version >= 1001004)
     ngx_chain_update_chains(r->pool, &ctx->free, &ctx->busy, &ctx->out,
-                            (ngx_buf_tag_t) &ngx_http_subs_filter_module);
+                            (ngx_buf_tag_t) &ngx_http_subs_filter_module_last_modified);
 #else
     ngx_chain_update_chains(&ctx->free, &ctx->busy, &ctx->out,
-                            (ngx_buf_tag_t) &ngx_http_subs_filter_module);
+                            (ngx_buf_tag_t) &ngx_http_subs_filter_module_last_modified);
 #endif
 
     if (ctx->last) {
