@@ -1,4 +1,8 @@
 
+Changes with nginx_substitutions_filter 0.7.0                                     2023-10-03
+
+    *) added the subs_filter_last_modified directive
+
 Changes with nginx_substitutions_filter 0.6.4                                     2014-02-15
 
     *) Now non-200 response will work

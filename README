@@ -10,6 +10,8 @@ nginx_substitutions_filter
     like Apache's mod_substitute
     (<http://httpd.apache.org/docs/trunk/mod/mod_substitute.html>).
 
+    *Note: this is a fork created by Regino Morilla to enable last_modified directive.*
+
   Example
     location / {
 
@@ -17,6 +19,8 @@ nginx_substitutions_filter
         subs_filter st(\d*).example.com $1.example.com ir;
         subs_filter a.example.com s.example.com;
         subs_filter http://$host https://$host;
+        subs_filter_last_modified on;
+
     }
 
   Directives
@@ -78,11 +82,21 @@ nginx_substitutions_filter
     of the variable is not empty and is not equal to '0', this substitution
     filter will be disabled.
 
+   subs_filter_last_modified
+    syntax: *subs_filter_last_modified (on|off)
+
+    default: *none*
+
+    context: *http, server, location*
+
+    As original nginx ngx_http_sub_filter_module, just enforce keeping
+    last_modified content from original resource and apply a weak etag if enabled.
+
   Installation
     To install, get the source with subversion:
 
     git clone
-    git://github.com/yaoweibin/ngx_http_substitutions_filter_module.git
+    https://github.com/feanorknd/ngx_http_substitutions_filter_module_last_modified
 
     and then compile nginx with the following option:
 
@@ -92,6 +106,10 @@ nginx_substitutions_filter
     *   Can't substitute the response header.
 
   CHANGES
+    Changes with nginx_substitutions_filter 0.7.0 2023-10-03
+
+    *   added the subs_filter_last_modified directive
+
     Changes with nginx_substitutions_filter 0.6.4 2014-02-15
 
     *   Now non-200 response will work
@@ -146,6 +164,7 @@ nginx_substitutions_filter
   Copyright & License
     This module is licensed under the BSD license.
 
+    Copyright (C) 2023 by Regino Morilla <regino_m@hotmail.com>.
     Copyright (C) 2014 by Weibin Yao <yaoweibin@gmail.com>.
 
     All rights reserved.
